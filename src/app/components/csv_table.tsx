@@ -7,68 +7,81 @@ interface CSVTableProps {
 }
 
 interface AggregatedData {
-  [date: string]: number;
+  [date: string]: {
+    usage: number;
+    cost: number;
+  };
 }
 
 const CSVTable: React.FC<CSVTableProps> = ({ data }) => {
   const dateRangeRegex =
-    /^\s*(\d{4}-\d{2}-\d{2})\s+\d{2}:\d{2}:\d{2}\s+to\s+\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s*$/;
+    /^\s*(\d{4}-\d{2}-\d{2})\s+(\d{2}):(\d{2}):(\d{2})\s+to\s+\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s*$/;
 
-  const processedData = data.filter((row) => {
-    if (row.length < 2) return false;
-    if (!dateRangeRegex.test(row[0].trim())) return false;
-    const num = parseFloat(row[1]);
-    return !isNaN(num);
-  });
+  const calculateRate = (date: Date, hour: number): number => {
+    const month = date.getMonth();
+    const day = date.getDay();
+    const isWeekend = day === 0 || day === 6;
 
-  const aggregatedData = useMemo(() => {
+    if (month >= 5 && month <= 8) {
+      // June - September
+      if (hour >= 17 && hour < 20) {
+        return isWeekend ? 0.33 : 0.33; // Mid-Peak (Weekend) or On-Peak (Weekday)
+      } else {
+        return 0.28; // Off-Peak
+      }
+    } else {
+      // October - May
+      if (hour >= 8 && hour < 17) {
+        return 0.26; // Super Off-Peak
+      } else if (hour >= 17 && hour < 20) {
+        return 0.33; // Mid-Peak
+      } else {
+        return 0.28; // Off-Peak
+      }
+    }
+  };
+
+  const { aggregatedData, totalUsage, totalCost } = useMemo(() => {
     const aggregated: AggregatedData = {};
+    let totalUsage = 0;
+    let totalCost = 0;
 
-    processedData.forEach((row) => {
+    data.forEach((row) => {
       const match = row[0].match(dateRangeRegex);
-      if (match) {
-        const date = match[1];
+      if (match && row.length >= 2) {
+        const [_, dateStr, hourStr, minuteStr] = match;
+        const date = new Date(dateStr);
+        const hour = parseInt(hourStr, 10);
+        const minute = parseInt(minuteStr, 10);
         const kWh = parseFloat(row[1]);
 
         if (!isNaN(kWh)) {
-          aggregated[date] = (aggregated[date] || 0) + kWh;
+          const rate = calculateRate(date, hour);
+          const cost = kWh * rate;
+
+          if (!aggregated[dateStr]) {
+            aggregated[dateStr] = { usage: 0, cost: 0 };
+          }
+          aggregated[dateStr].usage += kWh;
+          aggregated[dateStr].cost += cost;
+
+          totalUsage += kWh;
+          totalCost += cost;
         }
       }
     });
 
-    return aggregated;
-  }, [processedData]);
+    return { aggregatedData: aggregated, totalUsage, totalCost };
+  }, [data]);
 
   const sortedDates = useMemo(() => {
     return Object.keys(aggregatedData).sort();
   }, [aggregatedData]);
 
-  if (processedData.length === 0) return null;
+  if (sortedDates.length === 0) return null;
 
   return (
     <div className="mt-8 space-y-8">
-      {/** <div className="overflow-x-auto">
-        <h2 className="text-xl font-bold mb-4">Processed Data</h2>
-        <table className="min-w-full bg-white border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="py-2 px-4 border-b">Time Range</th>
-              <th className="py-2 px-4 border-b">Energy Usage (kWh)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {processedData.map((row, rowIndex) => (
-              <tr
-                key={rowIndex}
-                className={rowIndex % 2 === 0 ? "bg-gray-50" : "bg-white"}
-              >
-                <td className="py-2 px-4 border-b">{row[0]}</td>
-                <td className="py-2 px-4 border-b">{row[1]}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div> */}
       <div className="overflow-x-auto">
         <h2 className="text-xl font-bold mb-4">Aggregated Data</h2>
         <table className="min-w-full bg-white border border-gray-300">
@@ -76,6 +89,7 @@ const CSVTable: React.FC<CSVTableProps> = ({ data }) => {
             <tr className="bg-gray-100">
               <th className="py-2 px-4 border-b">Date</th>
               <th className="py-2 px-4 border-b">Total Energy Usage (kWh)</th>
+              <th className="py-2 px-4 border-b">Total Cost ($)</th>
             </tr>
           </thead>
           <tbody>
@@ -86,12 +100,24 @@ const CSVTable: React.FC<CSVTableProps> = ({ data }) => {
               >
                 <td className="py-2 px-4 border-b">{date}</td>
                 <td className="py-2 px-4 border-b">
-                  {aggregatedData[date].toFixed(3)}
+                  {aggregatedData[date].usage.toFixed(3)}
+                </td>
+                <td className="py-2 px-4 border-b">
+                  ${aggregatedData[date].cost.toFixed(2)}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="bg-gray-100 p-4 rounded-md">
+        <p className="font-bold">Summary</p>
+        <p>Total Energy Usage: {totalUsage.toFixed(3)} kWh</p>
+        <p>Total Cost: ${totalCost.toFixed(2)}</p>
+        <p>
+          Average Daily Usage: {(totalUsage / sortedDates.length).toFixed(3)}
+          kWh
+        </p>
       </div>
     </div>
   );
