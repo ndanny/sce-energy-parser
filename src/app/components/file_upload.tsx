@@ -2,6 +2,7 @@
 
 import React, { useState, ChangeEvent } from "react";
 import Papa from "papaparse";
+import CSVTable from "./csv_table";
 
 type CSVRow = string[];
 
@@ -33,31 +34,6 @@ const FileUpload: React.FC = () => {
     }
   };
 
-  const renderCsvData = () => {
-    if (!csvData || csvData.length === 0) return null;
-
-    return (
-      <div className="mt-8 overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-300">
-          <tbody>
-            {csvData.map((row, rowIndex) => (
-              <tr
-                key={rowIndex}
-                className={rowIndex % 2 === 0 ? "bg-gray-50" : "bg-white"}
-              >
-                {row.map((cell, cellIndex) => (
-                  <td key={cellIndex} className="py-2 px-4 border-b border-r">
-                    {cell}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  };
-
   return (
     <div className="p-6 bg-white border border-slate-200 rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Upload your SCE CSV file</h2>
@@ -85,7 +61,7 @@ const FileUpload: React.FC = () => {
           CSV data loaded successfully! {csvData.length} rows parsed.
         </p>
       )}
-      {renderCsvData()}
+      {csvData && <CSVTable data={csvData} />}
     </div>
   );
 };
