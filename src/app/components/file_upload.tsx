@@ -1,10 +1,13 @@
 "use client";
 
 import React, { useState, ChangeEvent } from "react";
+import Papa from "papaparse";
+
+type CSVRow = string[];
 
 const FileUpload: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
-  const [csvData, setCsvData] = useState<string | null>(null);
+  const [csvData, setCsvData] = useState<CSVRow[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -15,41 +18,35 @@ const FileUpload: React.FC = () => {
   const handleUpload = () => {
     if (file) {
       setIsLoading(true);
-      const reader = new FileReader();
-      reader.onload = (event: ProgressEvent<FileReader>) => {
-        const csvContent = event.target?.result as string;
-        setCsvData(csvContent);
-        setIsLoading(false);
-      };
-      reader.readAsText(file);
+      Papa.parse(file, {
+        complete: (result) => {
+          setCsvData(result.data as CSVRow[]);
+          setIsLoading(false);
+        },
+        error: (error) => {
+          console.error("Error parsing CSV:", error);
+          setIsLoading(false);
+        },
+      });
     } else {
       console.log("No file selected");
     }
   };
 
   const renderCsvData = () => {
-    if (!csvData) return null;
-
-    const rows = csvData.split("\n");
-    const headers = rows[0].split(",");
+    if (!csvData || csvData.length === 0) return null;
 
     return (
       <div className="mt-8 overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              {headers.map((header, index) => (
-                <th key={index} className="py-2 px-4 border-b">
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
           <tbody>
-            {rows.slice(1).map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {row.split(",").map((cell, cellIndex) => (
-                  <td key={cellIndex} className="py-2 px-4 border-b">
+            {csvData.map((row, rowIndex) => (
+              <tr
+                key={rowIndex}
+                className={rowIndex % 2 === 0 ? "bg-gray-50" : "bg-white"}
+              >
+                {row.map((cell, cellIndex) => (
+                  <td key={cellIndex} className="py-2 px-4 border-b border-r">
                     {cell}
                   </td>
                 ))}
@@ -62,7 +59,7 @@ const FileUpload: React.FC = () => {
   };
 
   return (
-    <div className="p-6 mt-8 bg-white border border-slate-200 rounded-lg">
+    <div className="p-6 bg-white border border-slate-200 rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Upload your SCE CSV file</h2>
       <input
         type="file"
@@ -84,7 +81,9 @@ const FileUpload: React.FC = () => {
         {isLoading ? "Processing..." : "Upload and Process"}
       </button>
       {csvData && (
-        <p className="mt-4 text-green-600">CSV data loaded successfully!</p>
+        <p className="mt-4 text-green-600">
+          CSV data loaded successfully! {csvData.length} rows parsed.
+        </p>
       )}
       {renderCsvData()}
     </div>
