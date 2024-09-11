@@ -1,4 +1,5 @@
 import Faq from "./components/faq";
+import FileUpload from "./components/file_upload";
 
 export default function Home() {
   return (
@@ -7,6 +8,7 @@ export default function Home() {
         Southern California Edison Energy Usage Parser
       </h1>
       <Faq />
+      <FileUpload />
     </div>
   );
 }
