@@ -23,28 +23,35 @@ const chartConfig = {
     label: "",
   },
   usage: {
-    label: "Usage",
+    label: "Total Use (kWH)",
     color: "hsl(var(--chart-5))",
   },
   cost: {
-    label: "Cost",
+    label: "Total Cost ($)",
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
 
-const UsageChart = ({ aggregationResult }: { aggregationResult: AggregationResult }) => {
+const UsageChart = ({
+  aggregationResult,
+}: {
+  aggregationResult: AggregationResult;
+}) => {
   const [activeChart, setActiveChart] =
     React.useState<keyof typeof chartConfig>("usage");
 
-  const aggregatedData = aggregationResult.aggregatedData
+  const aggregatedData = aggregationResult.aggregatedData;
 
   const chartData = Object.keys(aggregatedData)
     .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
-    .map(date => ({
+    .map((date) => ({
       date,
       usage: aggregatedData[date].usage,
-      cost: aggregatedData[date].cost
+      cost: aggregatedData[date].cost,
     }));
+
+  console.log("chartData:");
+  console.log(chartData);
 
   const total = React.useMemo(
     () => ({
@@ -60,7 +67,8 @@ const UsageChart = ({ aggregationResult }: { aggregationResult: AggregationResul
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle>Energy Usage Chart</CardTitle>
           <CardDescription>
-            Showing total kWH usage for {chartData[0].date} - {chartData[chartData.length - 1].date}
+            Showing total kWH usage for dates {chartData[0].date} to{" "}
+            {chartData[chartData.length - 1].date}
           </CardDescription>
         </div>
         <div className="flex">
@@ -77,7 +85,7 @@ const UsageChart = ({ aggregationResult }: { aggregationResult: AggregationResul
                   {chartConfig[chart].label}
                 </span>
                 <span className="text-lg font-bold leading-none sm:text-3xl">
-                  {total[key as keyof typeof total].toLocaleString()}
+                  {total[key as keyof typeof total].toFixed(2).toLocaleString()}
                 </span>
               </button>
             );
@@ -104,26 +112,26 @@ const UsageChart = ({ aggregationResult }: { aggregationResult: AggregationResul
               axisLine={false}
               tickMargin={8}
               minTickGap={32}
-              tickFormatter={(value) => {
-                const date = new Date(value);
-                return date.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                });
-              }}
+            // tickFormatter={(value) => {
+            //   const date = new Date(value);
+            //   return date.toLocaleDateString("en-US", {
+            //     month: "short",
+            //     day: "numeric",
+            //   });
+            // }}
             />
             <ChartTooltip
               content={
                 <ChartTooltipContent
                   className="w-[150px]"
                   nameKey="views"
-                  labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    });
-                  }}
+                // labelFormatter={(value) => {
+                //   return new Date(value).toLocaleDateString("en-US", {
+                //     month: "short",
+                //     day: "numeric",
+                //     year: "numeric",
+                //   });
+                // }}
                 />
               }
             />

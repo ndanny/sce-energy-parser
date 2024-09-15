@@ -82,7 +82,7 @@ const CSVUploadCard: React.FC = () => {
           <Button size="sm">Use sample data</Button>
         </div>
         <div className="flex flex-row gap-2 items-center justify-center">
-          <Button onClick={handleUpload} disabled={!file || isLoading} className="bg-emerald-500 text-white">
+          <Button onClick={handleUpload} disabled={!file || isLoading}>
             {isLoading ? "Processing..." : "Submit"}
           </Button>
           {csvData && <CheckCircledIcon color="green" width={24} height={24} />}
