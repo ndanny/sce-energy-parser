@@ -64,7 +64,7 @@ const CSVUploadCard: React.FC = () => {
           {isLoading ? "Processing..." : "Upload"}
         </Button>
         {csvData && (
-          <p className="mt-4 text-green-600">
+          <p className="mt-4 text-sm text-green-600">
             CSV data loaded successfully! {csvData.length} rows parsed.
           </p>
         )}
