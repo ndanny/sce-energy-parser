@@ -58,4 +58,4 @@ export const getAggregationResult = (data: string[]): AggregationResult => {
   });
 
   return { aggregatedData: aggregated, totalUsage, totalCost };
-}
+};
