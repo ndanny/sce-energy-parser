@@ -93,7 +93,7 @@ const CSVUploadCard: React.FC = () => {
         {csvData && (
           <div className="mt-5">
             <hr />
-            <UsageChart />
+            <UsageChart aggregationResult={aggregationResult} />
           </div>
         )}
       </CardContent>
