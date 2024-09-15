@@ -17,7 +17,7 @@ import UsageTable from "./usage-table";
 import UsageChart from "./usage-chart";
 import { AggregationResult } from "@/lib/types";
 import {
-  getAggregatedData,
+  getAggregationResult,
 } from "@/lib/calculations";
 
 const CSVUploadCard: React.FC = () => {
@@ -41,8 +41,7 @@ const CSVUploadCard: React.FC = () => {
       Papa.parse(file, {
         complete: (result) => {
           setCsvData(result.data as string[]);
-          const data = getAggregatedData(result.data as string[]);
-          setAggregationResult(data);
+          setAggregationResult(getAggregationResult(result.data as string[]));
           setIsLoading(false);
         },
         error: (error) => {
@@ -72,14 +71,18 @@ const CSVUploadCard: React.FC = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Input
-          className="w-[300px] cursor-pointer mb-4"
-          type="file"
-          accept=".csv"
-          onChange={handleFileChange}
-        />
-        <div className="flex flex-row space-x-2 items-center">
-          <Button onClick={handleUpload} disabled={!file || isLoading}>
+        <div className="flex flex-row gap-2 items-center justify-center">
+          <Input
+            className="w-[300px] cursor-pointer mb-4"
+            type="file"
+            accept=".csv"
+            onChange={handleFileChange}
+          />
+          <p>or</p>
+          <Button size="sm">Use sample data</Button>
+        </div>
+        <div className="flex flex-row gap-2 items-center justify-center">
+          <Button onClick={handleUpload} disabled={!file || isLoading} className="bg-emerald-500 text-white">
             {isLoading ? "Processing..." : "Submit"}
           </Button>
           {csvData && <CheckCircledIcon color="green" width={24} height={24} />}

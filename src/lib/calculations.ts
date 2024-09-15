@@ -24,7 +24,7 @@ export const calculate5to8Rate = (date: Date, hour: number): number => {
   }
 };
 
-export const getAggregatedData = (data: string[]): AggregationResult => {
+export const getAggregationResult = (data: string[]): AggregationResult => {
   const dateRangeRegex =
     /^\s*(\d{4}-\d{2}-\d{2})\s+(\d{2}):(\d{2}):(\d{2})\s+to\s+\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s*$/;
 
