@@ -19,16 +19,13 @@ import { AggregationResult } from "@/lib/types";
 import {
   getAggregationResult,
 } from "@/lib/calculations";
+import { sampleData } from "@/lib/sample-data";
 
 const CSVUploadCard: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [file, setFile] = useState<File | null>(null);
   const [csvData, setCsvData] = useState<string[] | null>(null);
-  const [aggregationResult, setAggregationResult] = useState<AggregationResult>({
-    aggregatedData: {},
-    totalCost: 0,
-    totalUsage: 0
-  });
+  const [aggregationResult, setAggregationResult] = useState<AggregationResult | null>();
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0] || null;
@@ -54,6 +51,10 @@ const CSVUploadCard: React.FC = () => {
     }
   };
 
+  const useSampleData = () => {
+    setAggregationResult(sampleData);
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -71,31 +72,48 @@ const CSVUploadCard: React.FC = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-row gap-2 items-center justify-center">
-          <Input
-            className="w-[300px] cursor-pointer mb-4"
-            type="file"
-            accept=".csv"
-            onChange={handleFileChange}
-          />
-          <p>or</p>
-          <Button size="sm">Use sample data</Button>
-        </div>
-        <div className="flex flex-row gap-2 items-center justify-center">
-          <Button onClick={handleUpload} disabled={!file || isLoading}>
-            {isLoading ? "Processing..." : "Submit"}
-          </Button>
-          {csvData && <CheckCircledIcon color="green" width={24} height={24} />}
-        </div>
-        {csvData && (
-          <div className="mt-5">
-            <UsageChart aggregationResult={aggregationResult} />
+
+        <div className="flex flex-col gap-4 items-center justify-center mb-4">
+          <div className="flex flex-col items-center">
+            <Input
+              className="w-[300px] cursor-pointer"
+              type="file"
+              accept=".csv"
+              onChange={handleFileChange}
+            />
+            <p className="text-sm text-gray-500 mt-2">Upload your CSV file</p>
           </div>
-        )}
-        {csvData && (
-          <div className="mt-5">
-            <UsageTable aggregationResult={aggregationResult} />
+
+          <div className="flex flex-row gap-2 items-center">
+            <Button
+              size="lg"
+              onClick={handleUpload}
+              disabled={!file || isLoading}
+            >
+              {isLoading ? "Processing..." : "Submit"}
+            </Button>
+            {csvData && <CheckCircledIcon color="green" width={18} height={18} />}
           </div>
+          <div className="flex flex-row gap-2 items-center">
+            <p className="text-sm text-gray-500">Don't have a file?</p>
+            <Button
+              size="sm"
+              className="border-gray-300 bg-white hover:bg-white text-black"
+              onClick={useSampleData}
+            >
+              Use sample data
+            </Button>
+          </div>
+        </div>
+        {aggregationResult && (
+          <>
+            <div className="mt-5">
+              <UsageChart aggregationResult={aggregationResult} />
+            </div>
+            <div className="mt-5">
+              <UsageTable aggregationResult={aggregationResult} />
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
