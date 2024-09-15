@@ -7,7 +7,7 @@ export default function Home() {
       <h1 className="text-2xl mb-6">
         Southern California Edison Energy Usage Parser
       </h1>
-      <Faq />
+      {/* <Faq /> */}
       <FileUpload />
     </div>
   );
