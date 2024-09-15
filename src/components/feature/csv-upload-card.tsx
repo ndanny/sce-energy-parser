@@ -4,10 +4,11 @@ import React, { useState, ChangeEvent } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { CheckCircledIcon } from "@radix-ui/react-icons";
 import Papa from "papaparse";
 import Link from "next/link";
 import UsageTable from "./usage-table";
-import { CheckCircledIcon } from "@radix-ui/react-icons";
+import UsageChart from "./usage-chart";
 
 type CSVRow = string[];
 
@@ -69,7 +70,16 @@ const CSVUploadCard: React.FC = () => {
             <CheckCircledIcon color="green" width={24} height={24} />
           )}
         </div>
-        {csvData && <UsageTable data={csvData} />}
+        {csvData && <div className="mt-5">
+          <hr />
+          <UsageTable data={csvData} />
+        </div>
+        }
+        {csvData && <div className="mt-5">
+          <hr />
+          <UsageChart />
+        </div>
+        }
       </CardContent>
     </Card>
   );
