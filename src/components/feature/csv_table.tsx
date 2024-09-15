@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { calculate5to8Rate } from "@/app/lib/rates"
+import { calculate5to8Rate } from "@/lib/rates"
 
 type CSVRow = string[];
 

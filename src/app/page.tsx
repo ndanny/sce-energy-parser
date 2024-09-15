@@ -1,5 +1,5 @@
-import Faq from "./components/faq";
-import FileUpload from "./components/file_upload";
+import Faq from "../components/feature/faq";
+import FileUpload from "../components/feature/file_upload";
 
 export default function Home() {
   return (
