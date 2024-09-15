@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState, ChangeEvent } from "react";
-import Papa from "papaparse";
-import CSVTable from "./csv_table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import Link from "next/link";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import Papa from "papaparse";
+import Link from "next/link";
+import UsageTable from "./usage-table";
+import { CheckCircledIcon } from "@radix-ui/react-icons";
 
 type CSVRow = string[];
 
@@ -58,17 +59,17 @@ const CSVUploadCard: React.FC = () => {
           type="file"
           accept=".csv"
           onChange={handleFileChange} />
-        <Button
-          onClick={handleUpload}
-          disabled={!file || isLoading}>
-          {isLoading ? "Processing..." : "Upload"}
-        </Button>
-        {csvData && (
-          <p className="mt-4 text-sm text-green-600">
-            CSV data loaded successfully! {csvData.length} rows parsed.
-          </p>
-        )}
-        {csvData && <CSVTable data={csvData} />}
+        <div className="flex flex-row space-x-2 items-center">
+          <Button
+            onClick={handleUpload}
+            disabled={!file || isLoading}>
+            {isLoading ? "Processing..." : "Upload"}
+          </Button>
+          {csvData && (
+            <CheckCircledIcon color="green" width={24} height={24} />
+          )}
+        </div>
+        {csvData && <UsageTable data={csvData} />}
       </CardContent>
     </Card>
   );
